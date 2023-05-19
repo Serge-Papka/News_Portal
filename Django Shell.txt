@@ -1,0 +1,95 @@
+from News_Portal.models import *
+
+#1.Создать двух пользователей (с помощью метода User.objects.create_user('username')).
+user_1 = User.objects.create_user('user_1')
+User4_Boss = User.objects.create_user('Petr')
+
+#2.Создать два объекта модели Author, связанные с пользователями.
+Author1 = Author.objects.create(user=user_1, author_name = 'first')
+Author2 = Author.objects.create(user=User4_Boss,author_name = User4_Boss.username )
+
+#3. Добавить 4 категории в модель Category.
+politic =Category.objects.create(name ='Politic')
+sport = Category.objects.create(name ='Sport')
+sensations = Category.objects.create(name ='Sensations')
+important = Category.objects.create(name ='Important')
+
+#4.Добавить 2 статьи и 1 новость.
+post1 = Post.objects.create(author_id= Author1.pk,title = 'Do not miss',text = 'Все все все ! Срочно идите и читайте мою новость! Она находится в категориях Важное и Спорт!' )
+post2 = Post.objects.create(author_id= Author2.pk,title = 'Go to sports',text = 'Нашей секции по футболу не хватает 3 мальчиков. Секции по баскетболу 1 мальчика. Приглашаем ваших детей в спортивный кружок.')
+post3 = Post.objects.create(author_id= Author1.pk, position = 'NE', title = "Super match. It's just amazing",text = 'В это воскресенье состоялся любительский матч по футболу между командами нашего города и соседского. Мы победили со счетом 6:4. Лучше всех отличился игрок по кличке First, он забил 3 мяча! Поздравляем!')
+
+#5. Присвоить им категории (как минимум в одной статье/новости должно быть не меньше 2 категорий).
+PostCategory.objects.create(post_id = post1.pk,category_id = sport.pk)
+PostCategory.objects.create(post_id = post1.pk,category_id = important.pk)
+PostCategory.objects.create(post_id = post2.pk,category_id = important.pk)
+PostCategory.objects.create(post_id = post2.pk,category_id = sport.pk)
+PostCategory.objects.create(post_id = post3.pk,category_id = sport.pk)
+PostCategory.objects.create(post_id = post3.pk,category_id = important.pk)
+PostCategory.objects.create(post_id = post3.pk,category_id = sensations.pk)
+
+#6. Создать как минимум 4 комментария к разным объектам модели Post (в каждом объекте должен быть как минимум один комментарий).
+comment1 = Comment.objects.create(user_id = user_1.pk, post_id = post1.pk,text = "Не забудьте посетить новость!")
+comment2 = Comment.objects.create(user_id = user_1.pk, post_id = post2.pk,text = "Желательно самых быстрых и ловких ))")
+comment3 = Comment.objects.create(user_id = user_1.pk, post_id = post3.pk,text = "Это просто улёт!")
+comment4 = Comment.objects.create(user_id = User4_Boss.pk, post_id = post2.pk,text = "Подойдут любые. А быстрыми и ловкими они станут после тренировок")
+comment5 = Comment.objects.create(user_id = User4_Boss.pk, post_id = post3.pk,text = "Кстати, игру вы можете посмотреть на www.youtube.com/watch=топ/футбол77")
+#Можно так, если база нулевая:
+#comment1 = Comment.objects.get(pk=1)
+#comment2 = Comment.objects.get(pk=2)
+#comment3 = Comment.objects.get(pk=3)
+#comment4 = Comment.objects.get(pk=4)
+#comment5 = Comment.objects.get(pk=5)
+
+#7. Применяя функции like() и dislike() к статьям/новостям и комментариям, скорректировать рейтинги этих объектов.
+post1.like()
+post1.dislike()
+post1.dislike()
+post2.like()
+post2.like()
+post2.like()
+post2.like()
+post2.like()
+post3.like()
+post3.like()
+post3.like()
+comment1.dislike()
+comment1.dislike()
+comment2.dislike()
+comment2.like()
+comment2.like()
+comment3.like()
+comment3.like()
+comment4.like()
+comment4.like()
+comment5.like()
+comment5.like()
+comment5.like()
+
+#8. Обновить рейтинги пользователей.
+Author1.update_rating()
+Author2.update_rating()
+
+#9. Вывести username и рейтинг лучшего пользователя (применяя сортировку и возвращая поля первого объекта).
+# worse_author = Author.objects.order_by('ratio').first()
+best_author = Author.objects.order_by('-ratio').first()
+Msg_u = best_author.user.username + '  ' + str(best_author.ratio)
+Msg_u
+
+#10. Вывести дату добавления, username автора, рейтинг, заголовок и превью лучшей статьи, основываясь на лайках/дислайках к этой статье.
+best_post = Post.objects.order_by('-ratio').first()
+Data  = str(best_post.date_time)[:10]
+Username_ = Post.objects.get(pk=best_post.pk).author.user.username
+Msg_p = {
+'Date': Data,
+'Autor': Username_,
+'Ratio': best_post.ratio,
+'Title': best_post.title,
+'Preview': best_post.preview(),
+}
+Msg_p
+
+#11. Вывести все комментарии (дата, пользователь, рейтинг, текст) к этой статье.
+# 1 вариант
+Msg_c = Comment.objects.select_related('post', 'user__author').filter(post__id = best_post.pk).values('date_time', 'user__author__author_name', 'ratio', 'text')
+Msg_c
