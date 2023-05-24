@@ -1,0 +1,45 @@
+<!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
+{% extends 'flatpages/default.html' %}
+{% load custom_filters %}
+<!-- Название у нас будет News_List -->
+{% block title %}
+News_List
+{% endblock title %}
+
+<!--Новости — заголовок, дата публикации в формате день.месяц.год, затем первые 20 слов текста статьи. Можно вывести как списком, так и таблицей. Новости должны выводиться в порядке от более свежей к старой.
+Сверху страницы должно быть выведено количество всех новостей (используется фильтр news|length).-->
+
+
+<!-- В контенте на странице мы выводим все товары news_list-->
+{% block content %}
+<h1>Все новости (не посты)</h1>
+<h3>Всего новостей:     {{ news_list|length }}   </h3>
+<hr>
+{% if news_list %}
+<table>
+    <tr>
+        <td>Заголовок </td>
+        <td>Дата публикации  </td>
+        <td>Статья</td>
+    </tr>
+    <tr>
+        <td><hr></td>
+        <td><hr></td>
+        <td><hr></td>
+    </tr>
+
+
+    {% for post_ in news_list %}
+    <tr>
+        <td>{{ post_.title|censor}}</td>
+        <td>{{ post_.date_time|date:' d m Y' }}</td>
+        <td>{{ post_.text|truncatewords:20|censor }}</td>
+    </tr>
+    {% endfor %}
+
+
+</table>
+{% else %}
+<h2>Новостей нет!</h2>
+{% endif %}
+{% endblock content %}

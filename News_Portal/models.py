@@ -54,6 +54,9 @@ class Post(models.Model):
     def preview(self):  # Возвращает начало статьи (предварительный просмотр) длиной 124 символа
         return self.text[:124] + '...'
 
+    def __str__(self):
+        return f'{self.title} , {self.text[:20]} ...'
+
 
 class PostCategory(models.Model):
     post = models.ForeignKey('Post', on_delete=models.CASCADE)  # связь «один ко многим» с моделью Post;

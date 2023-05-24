@@ -15,8 +15,17 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from django.views.generic import RedirectView
+# from D.Django_2.News.News_Portal.views import ArticleList
+# from News.News_Portal.views import ArticleList
+# Вопрос, почему у меня не работают такие импорты? >>>ModuleNotFoundError: No module named 'D'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('news/', include('News_Portal.urls')),
+    path('', RedirectView.as_view(url='/about/')),
+    # path('article/', ArticleList.as_view()),
+
+
 ]

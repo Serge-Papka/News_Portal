@@ -1,0 +1,34 @@
+<!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
+{% extends 'flatpages/default.html' %}
+{% load custom_filters %}
+
+{% block title %}
+Specific news
+{% endblock title %}
+
+<!--По ссылке /news/<id новости> должна выводиться детальная информация о новости.
+Заголовок, дата публикации в формате день.месяц.год и полный текст статьи.-->
+
+<!-- В контенте на странице мы выводим сам товар, идентификатор которого был передан в url -->
+{% block content %}
+<h1>{{ news_solo.title|censor }}</h1>
+<hr>
+{% if news_solo %}
+<table>
+    <tr>
+        <td>Заголовок </td>
+        <td>Дата публикации </td>
+        <td>Статья</td>
+    </tr>
+    <tr>
+        <td>{{ news_solo.title|censor }}</td>
+        <td>{{ news_solo.date_time|date:' d m Y' }}</td>
+        <td>{{ news_solo.text|censor}}</td>
+    </tr>
+
+
+</table>
+{% else %}
+<h2>Новости нет!</h2>
+{% endif %}
+{% endblock content %}
