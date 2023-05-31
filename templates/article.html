@@ -8,34 +8,62 @@ Article_List
 
 
 {% block content %}
-<h1>Все статьи</h1>
-<h3>Всего статей:     {{ article_list|length }}   </h3>
-<hr>
-{% if article_list %}
-<table>
-    <tr>
-        <td>Заголовок </td>
-        <td>Дата публикации  </td>
-        <td>Статья</td>
-    </tr>
-    <tr>
-        <td><hr></td>
-        <td><hr></td>
-        <td><hr></td>
-    </tr>
+    <h1>Статьи</h1>
+    <h3>Статей на странице:     {{ article_list|length }}   </h3>
+    <hr>
+    {% if article_list %}
+    <table>
+        <tr>
+            <td>Заголовок </td>
+            <td>Дата публикации  </td>
+            <td>Статья</td>
+            <td>---</td>
+            <td>pk</td>
+            <td>---</td>
+        </tr>
+        <tr>
+            <td><hr></td>
+            <td><hr></td>
+            <td><hr></td>
+        </tr>
 
 
-    {% for post_ in article_list %}
-    <tr>
-        <td>{{ post_.title|censor}}</td>
-        <td>{{ post_.date_time|date:' d m Y' }}</td>
-        <td>{{ post_.text|truncatewords:20|censor }}</td>
-    </tr>
-    {% endfor %}
+        {% for post_ in article_list %}
+        <tr>
+            <td>{{ post_.title|censor}}</td>
+            <td>{{ post_.date_time|date:' d m Y' }}</td>
+            <td>{{ post_.text|truncatewords:20|censor }}</td>
+            <td></td>
+            <td>{{ post_.pk }}</td>
+        </tr>
+        {% endfor %}
 
 
-</table>
-{% else %}
-<h2>Статей нет !</h2>
-{% endif %}
+    </table>
+    {% else %}
+    <h2>Статей нет !</h2>
+    {% endif %}
+
+    {# Добавляем пагинацию на страницу #}
+   {# Информация о предыдущих страницах #}
+   {% if page_obj.has_previous %}
+       <a href="?page=1">1</a>
+       {% if page_obj.previous_page_number != 1 %}
+           ...
+           <a href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
+       {% endif %}
+   {% endif %}
+
+   {# Информация о текущей странице #}
+   {{ page_obj.number }}
+
+   {# Информация о следующих страницах #}
+   {% if page_obj.has_next %}
+       <a href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
+       {% if paginator.num_pages != page_obj.next_page_number %}
+           ...
+           <a href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a>
+       {% endif %}
+   {% endif %}
+
 {% endblock content %}

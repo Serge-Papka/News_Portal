@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Sum
+from django.urls import reverse
 
 
 class Author(models.Model):
@@ -22,9 +23,15 @@ class Author(models.Model):
         self.ratio = ratio_posts_autor * 3 + ratio_comments_autor + ratio_users_comments
         self.save()
 
+    def __str__(self):
+        return self.author_name
+
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)  # OK
+
+    def __str__(self):
+        return f'{self.name}'
 
 
 class Post(models.Model):
@@ -39,7 +46,7 @@ class Post(models.Model):
     date_time = models.DateTimeField(auto_now_add=True)  # автоматически добавляемая дата и время создания;
     category = models.ManyToManyField('Category', through='PostCategory')  # связь «многие ко многим»
     #                                           с моделью Category (с дополнительной моделью PostCategory);
-    title = models.CharField(max_length=50)  # заголовок статьи/новости;
+    title = models.CharField(max_length=50, unique=True)  # заголовок статьи/новости;
     text = models.TextField(default="Текст отсутствует.")  # текст статьи/новости;
     ratio = models.IntegerField(default=0)  # рейтинг статьи/новости."
 
@@ -56,6 +63,20 @@ class Post(models.Model):
 
     def __str__(self):
         return f'{self.title} , {self.text[:20]} ...'
+
+    def get_absolute_url(self):
+        if self.position == 'AR':
+            return reverse('arst', args=[str(self.id)])
+        else:
+            return reverse('NewsDetail2', args=[str(self.id)])
+
+    # def save(self, *args, **kwargs):
+    #     if not self.pk:  # если объект только что создан
+    #         if 'article' in kwargs:  # если значение position было передано явно
+    #             self.position = kwargs['article']
+    #         else:
+    #             self.position = self.news  # устанавливаем значение по умолчанию для новостей
+    #     super().save(*args, **kwargs)
 
 
 class PostCategory(models.Model):

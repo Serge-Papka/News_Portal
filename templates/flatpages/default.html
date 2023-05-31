@@ -42,7 +42,7 @@
                     <a class="nav-link" href="/admin/">Admin</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/news/">Список Новостей</a>
+                    <a class="nav-link" href="/news/">Новости</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/news/3">Новость1</a>
@@ -51,9 +51,40 @@
                     <a class="nav-link" href="/news/4">Новость2</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/news/article">Статьи</a>
+                    <a class="nav-link" href="/article">Статьи</a>
                 </li>
+                 <li class="nav-item">
+                    <a class="nav-link" href="/news/search">Поиск Новостей</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/news/create">+Новость</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/article/create">+Пост</a>
+                </li>
+                <li class="nav-item">
+                    {% if object.pk %}
+                        {% if object.position == 'NE' %}
+                                <li class="nav-item">
+                                    <a href="{% url 'news_up' pk=object.pk %}">Ред  .</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{% url 'news_del' pk=object.pk %}">Удалить новость</a>
+                                </li>
+                        {% endif %}
+                        {% if object.pk %}
+                            {% if object.position == 'AR' %}
+                                <li class="nav-item">
+                                    <a href="{% url 'articleUpdate' p_keyArticleUpdate=object.pk %}">Ред  .</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{% url 'article_del' pk=object.pk %}">Удалить пост.</a>
+                                </li>
+                        {% endif %}
 
+                        {% endif %}
+                    {% endif %}
+                </li>
             </ul>
         </div>
     </div>
