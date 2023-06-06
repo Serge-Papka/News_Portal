@@ -4,6 +4,7 @@ from django.db.models import Sum
 from django.urls import reverse
 
 
+
 class Author(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)  # Связь «один к одному»
     # с встроенной моделью пользователей User;
@@ -101,3 +102,6 @@ class Comment(models.Model):
     def dislike(self):
         self.ratio -= 1
         self.save()
+
+
+

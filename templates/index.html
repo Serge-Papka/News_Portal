@@ -1,0 +1,16 @@
+{% extends 'flatpages/default.html' %}
+
+{% block title %}
+Start
+{% endblock title %}
+
+{% block content %}
+<h1>Старт</h1>
+{{request.user.username}}
+<!--    {% if is_not_author %}-->
+<!--        <p align="center"> <button> <a href="upgrade/"> Стать автором</a> </button> </p>-->
+<!--    {% endif %}-->
+    {% if not is_not_author %}
+        <p align="center"> <button> <a href="downgrade/"> Перестать быть автором</a> </button> </p>
+    {% endif %}
+{% endblock content %}

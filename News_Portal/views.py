@@ -1,15 +1,15 @@
+from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render
-
-# Create your views here.
-# Импортируем класс, который говорит нам о том,
-# что в этом представлении мы будем выводить список объектов из БД
 from django.urls import reverse_lazy, reverse
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, TemplateView
 from .filters import PostFilter
 from .forms import PostForm
 from .models import Post
+from django.shortcuts import redirect
+from django.contrib.auth.models import Group
+from django.contrib.auth.mixins import PermissionRequiredMixin
 
 
 # Добавьте страницу /news/search. На ней должна быть реализована возможность искать
@@ -89,7 +89,10 @@ class ArticleDetail(DetailView):
         return obj
 
 
+@login_required
+@permission_required('News_Portal.add_post', raise_exception=True)
 def create_news(request):  # способ 1
+    is_not_author = not request.user.groups.filter(name='authors').exists()
     if request.method == 'POST':
         form3 = PostForm(request.POST)
         if form3.is_valid():
@@ -99,12 +102,15 @@ def create_news(request):  # способ 1
             post_c.save()
             return HttpResponseRedirect(reverse('NewsDetail2', args=[post_c.pk]))
         else:
-            return render(request, 'news_create.html', {'form': form3})
+            return render(request, 'news_create.html', {'form': form3,
+                                                        'is_not_author': is_not_author})
     form2 = PostForm()
-    return render(request, 'news_create.html', {'form': form2})  # , 'position': 'NE'})
+    return render(request, 'news_create.html', {'form': form2,
+                                                'is_not_author': is_not_author})
 
 
-class PostCreate(CreateView):  # способ 2 Джинерик
+class PostCreate(PermissionRequiredMixin, LoginRequiredMixin, CreateView):  # способ 2 Джинерик
+    permission_required = 'News_Portal.add_post'
     form_class = PostForm
     model = Post
     template_name = 'article_create.html'
@@ -114,8 +120,14 @@ class PostCreate(CreateView):  # способ 2 Джинерик
         post_.position = 'AR'
         return super().form_valid(form)
 
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
+    #     return context
 
-class NewsUpdate(UpdateView):
+
+class NewsUpdate(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):
+    permission_required = 'News_Portal.change_post'
     form_class = PostForm
     model = Post
     template_name = 'news_edit.html'
@@ -124,10 +136,20 @@ class NewsUpdate(UpdateView):
         obj = super().get_object(queryset=queryset)
         if obj.position == 'AR':
             raise Http404("This not news")
+        user = self.request.user
+        print(user, 999111)
+        if not user.is_authenticated:
+            print("You must be logged in to edit news")
         return obj
 
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
+    #     return context
 
-class ArticleUpdate(UpdateView):
+
+class ArticleUpdate(PermissionRequiredMixin, LoginRequiredMixin, UpdateView):
+    permission_required = 'News_Portal.change_post'
     form_class = PostForm
     model = Post
     template_name = 'news_edit.html'
@@ -139,15 +161,62 @@ class ArticleUpdate(UpdateView):
             raise Http404("This not a article")
         return obj
 
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
+    #     return context
+
 
 # Представление удаляющее товар.
-class NewsDelete(DeleteView):
+class NewsDelete(PermissionRequiredMixin, LoginRequiredMixin, DeleteView):
+    permission_required = 'News_Portal.delete_post'
     model = Post
     template_name = 'news_delete.html'
     success_url = reverse_lazy('news-list')
 
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
+    #     return context
 
-class ArticleDelete(DeleteView):
+
+class ArticleDelete(PermissionRequiredMixin, LoginRequiredMixin, DeleteView):
+    permission_required = 'News_Portal.delete_post'
     model = Post
     template_name = 'article_delete.html'
     success_url = reverse_lazy('article_list')
+
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
+    #     return context
+
+
+class IndexView(LoginRequiredMixin, TemplateView):
+    template_name = 'index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['is_not_author'] = not self.request.user.groups.filter(name='authors').exists()
+        return context
+
+
+@login_required
+def upgrade_me(request):
+    user = request.user
+    premium_group = Group.objects.get(name='authors')
+    if not request.user.groups.filter(name='authors').exists():
+        premium_group.user_set.add(user)
+    return redirect(request.META['HTTP_REFERER'])
+
+
+def downgrade_me(request):
+    user = request.user
+    premium_group = Group.objects.get(name='authors')
+    if request.user.groups.filter(name='authors').exists():
+        premium_group.user_set.remove(user)
+    return redirect('/')
+
+# class MyView(PermissionRequiredMixin, View):
+#     permission_required = ('<app>.<action>_<model>',
+#                            '<app>.<action>_<model>')

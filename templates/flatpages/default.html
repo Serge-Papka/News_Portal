@@ -18,7 +18,7 @@
 <!-- Responsive navbar-->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
     <div class="container">
-        <a class="navbar-brand" href="#">Django flatpages</a>
+        <a class="navbar-brand" href="#">News</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse"
                 data-target="#navbarResponsive"
                 aria-controls="navbarResponsive" aria-expanded="false"
@@ -28,27 +28,32 @@
         <div class="collapse navbar-collapse" id="navbarResponsive">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item active">
-                    <a class="nav-link" href="#">Home
-                        <span class="sr-only">(current)</span>
-                    </a>
+                    <a class="nav-link" href="/">Старт</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/about/">About</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/contact_page/">Contact</a>
+                    <a class="nav-link" href="/about/">2</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/admin/">Admin</a>
                 </li>
+
+
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/accounts/logout/">{{ user.username }}</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/accounts/login/">Войти</a>
+                    </li>
+                 {% endif %}
+
+
                 <li class="nav-item">
                     <a class="nav-link" href="/news/">Новости</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/news/3">Новость1</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/news/4">Новость2</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/article">Статьи</a>
@@ -62,6 +67,7 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/article/create">+Пост</a>
                 </li>
+
                 <li class="nav-item">
                     {% if object.pk %}
                         {% if object.position == 'NE' %}
@@ -85,6 +91,18 @@
                         {% endif %}
                     {% endif %}
                 </li>
+
+
+
+
+
+
+
+
+
+<!--                <li class="nav-item">-->
+<!--                    <a class="navbar-brand" href="#">{{ object.author }}</>-->
+<!--                </li>-->
             </ul>
         </div>
     </div>
@@ -98,6 +116,11 @@
             {% block content %}
             {{ flatpage.content }}
             {% endblock content %}
+            {% if is_not_author %}
+                 <p align="center"> <button> <a href="upgrade/"> Стать автором</a> </button> </p>
+            {% endif %}
+
+
         </div>
     </div>
 </div>
